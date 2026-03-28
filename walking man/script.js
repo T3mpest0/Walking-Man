@@ -7,6 +7,7 @@ let camera = new THREE.PerspectiveCamera(75,
     0.1,
     1000
 );
+camera.position.set(0,33,50)
 let renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -22,7 +23,35 @@ loader.load("snow_terrain_low_poly.glb",(gltf)=>{
 
     snowTerrain.scale.set(10,10,10); // adjust if needed
 
-    snowTerrain.position.set(0, 0, 0);
+    snowTerrain.position.set(0, -17, 0);
 
     scene.add(snowTerrain);
 })
+let modi;
+let mixer;
+loader.load(
+    'narendra_modi_-_prime_minister_of_india.glb',
+    (gltf)=> {
+        modi = gltf.scene;
+        modi.scale.set(25,25,25);
+        modi.position.set(0,0,0);
+        scene.add(modi);
+        mixer=new THREE.AnimationMixer(modi);
+        if (gltf.animations.length>0){
+            const action = mixer.clipAction(gltf.animations[0]);
+            action.play();
+        }
+    }
+)
+let keys = {};
+
+window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
+window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
+const clock = new THREE.Clock();
+function Animate() {
+    requestAnimationFrame(Animate);
+    let delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+    renderer.render(scene, camera);
+}
+Animate();
